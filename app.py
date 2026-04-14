@@ -37,7 +37,9 @@ ciudades = ["Rivas", "Managua", "Leon", "Granada", "Jinotega", "Matagalpa", "Cho
 ciudad_fiel = st.sidebar.selectbox("Selecciona una ciudad:", ciudades)
 
 # 4. PROCESAMIENTO Y VISUALIZACIÓN
-datos = consultar_clima(ciudad_fiel)
+# Reemplaza la llamada a la función por esto:
+with st.spinner(f"Extrayendo datos climáticos de {ciudad_fiel}..."):
+    datos = consultar_clima(ciudad_fiel)
 
 if datos:
     # 4.1 Métricas Rápidas
