@@ -28,12 +28,12 @@ def consultar_clima(ciudad):
         return None
 
 # 3. INTERFAZ Y FILTROS
-st.title("🌤️ Dashboard Meteorológico de Nicaragua")
+st.title("🌤️ Tabla Meteorológica de Nicaragua")
 st.markdown("Consulta en tiempo real los datos climáticos de las principales ciudades.")
 
 # Filtro lateral para navegación
 st.sidebar.header("📍 Parámetros de Consulta")
-ciudades = ["Rivas", "Managua", "Leon", "Granada", "Jinotega", "Matagalpa", "Bluefields"]
+ciudades = ["Rivas", "Managua", "Leon", "Granada", "Jinotega", "Matagalpa", "Chontales", "Boaco", "Bluefields"]
 ciudad_fiel = st.sidebar.selectbox("Selecciona una ciudad:", ciudades)
 
 # 4. PROCESAMIENTO Y VISUALIZACIÓN (Continuación del código anterior)
@@ -42,17 +42,18 @@ datos = consultar_clima(ciudad_fiel)
 if datos:
     # ... (código de métricas que ya tienes) ...
 
-    st.subheader(f"📊 Análisis Estadístico para {ciudad_fiel}")
+    st.subheader(f"Análisis Estadístico para {ciudad_fiel}")
     
     # Creamos un diccionario con las métricas clave para análisis
     dict_stats = {
-        "Métrica": ["Temperatura Real", "Sensación Térmica", "Temp. Mínima", "Temp. Máxima", "Presión Atm."],
+        "Métrica": ["Temperatura Real", "Sensación Térmica", "Temp. Mínima", "Temp. Máxima", "velocidad del viento", "Presión Atm."],
         "Valor": [
             f"{datos['main']['temp']} °C",
             f"{datos['main']['feels_like']} °C",
             f"{datos['main']['temp_min']} °C",
             f"{datos['main']['temp_max']} °C",
             f"{datos['main']['pressure']} hPa"
+            f"{datos['wind']['speed']} k/h"
         ],
         "Estado": [
             "Normal" if datos['main']['temp'] < 30 else "Cálido",
