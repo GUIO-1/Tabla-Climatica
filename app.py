@@ -39,7 +39,20 @@ with st.spinner(f"Extrayendo datos climáticos de {ciudad_fiel}..."):
     datos = consultar_clima(ciudad_fiel)
 
 if datos:
-    # 4.1 Métricas Rápidas
+   
+    # 4.1Obtener el código del icono de la API
+    icono_codigo = datos['weather'][0]['icon']
+    url_icono = f"http://openweathermap.org/img/wn/{icono_codigo}@4x.png"
+
+    #4.2Mostrar la imagen en la barra lateral
+    st.sidebar.markdown("---") # Separador visual
+    st.sidebar.image(url_icono, caption=f"Clima en {ciudad_fiel}", use_container_width=True)
+    
+    #4.3 Mostrar descripción breve
+    descripcion = datos['weather'][0]['description'].capitalize()
+    st.sidebar.info(f"**Estado:** {descripcion}")
+
+    # 4.4 Métricas Rápidas
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Temperatura", f"{datos['main']['temp']} °C")
     col2.metric("Sensación", f"{datos['main']['feels_like']} °C")
@@ -48,7 +61,7 @@ if datos:
 
     st.divider()
 
-    # 4.2 Tabla de Análisis Estadístico
+    # 4.5 Tabla de Análisis Estadístico
    # Asegúrate de que cada lista tenga exactamente 6 elementos
     dict_stats = {
         "Métrica": [
@@ -77,7 +90,7 @@ if datos:
     df_stats = pd.DataFrame(dict_stats)
     st.dataframe(df_stats, use_container_width=True, hide_index=True)
 
-    # 4.3 AQUÍ VA EL PUNTO 2 (GRÁFICO DE RADAR) ---
+    # 4.6 AQUÍ VA EL PUNTO 2 (GRÁFICO DE RADAR) ---
     st.subheader("📊 Perfil Climático Detallado")
     
 
@@ -106,7 +119,7 @@ if datos:
     
     st.plotly_chart(fig_radar, use_container_width=True)
 
-    # 4.4 Gráfico Animado de Plotly
+    # 4.7 Gráfico Animado de Plotly
     st.subheader("📈 Comparativa Visual de Temperaturas")
     df_animado = pd.DataFrame({
         'Métrica': ['Mínima', 'Actual', 'Máxima'],
@@ -126,7 +139,7 @@ if datos:
     fig.update_layout(transition_duration=800, yaxis_range=[0, 45], showlegend=False)
     st.plotly_chart(fig, use_container_width=True)
 
-    # 4.5 Mensaje Informativo
+    # 4.8 Mensaje Informativo
     dif_termica = abs(datos['main']['temp'] - datos['main']['feels_like'])
     st.info(f"💡 **Dato del sistema:** Hay una diferencia de {dif_termica:.2f} °C en {ciudad_fiel} debido a la humedad del {datos['main']['humidity']}%.")
 
