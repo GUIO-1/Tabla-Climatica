@@ -48,10 +48,12 @@ if datos:
     st.divider()
 
     # 4.2 Tabla de Análisis Estadístico
-    st.subheader(f"📊 Análisis Estadístico para {ciudad_fiel}")
-    
+   # Asegúrate de que cada lista tenga exactamente 6 elementos
     dict_stats = {
-        "Métrica": ["Temperatura Real", "Sensación Térmica", "Temp. Mínima", "Temp. Máxima", "Velocidad del viento", "Presión Atm."],
+        "Métrica": [
+            "Temperatura Real", "Sensación Térmica", "Temp. Mínima", 
+            "Temp. Máxima", "Velocidad del viento", "Presión Atm."
+        ],
         "Valor": [
             f"{datos['main']['temp']} °C",
             f"{datos['main']['feels_like']} °C",
@@ -69,7 +71,8 @@ if datos:
             "Estable" if 1010 <= datos['main']['pressure'] <= 1015 else "Variable"
         ]
     }
-
+    
+    # Esto ya no fallará
     df_stats = pd.DataFrame(dict_stats)
     st.dataframe(df_stats, use_container_width=True, hide_index=True)
 
