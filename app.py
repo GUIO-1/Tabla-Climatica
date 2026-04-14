@@ -36,47 +36,59 @@ st.sidebar.header("📍 Parámetros de Consulta")
 ciudades = ["Rivas", "Managua", "Leon", "Granada", "Jinotega", "Matagalpa", "Chontales", "Boaco", "Bluefields"]
 ciudad_fiel = st.sidebar.selectbox("Selecciona una ciudad:", ciudades)
 
-# 4. PROCESAMIENTO Y VISUALIZACIÓN (Continuación del código anterior)
+# 4. PROCESAMIENTO Y VISUALIZACIÓN
 datos = consultar_clima(ciudad_fiel)
 
 if datos:
-    # ... (código de métricas que ya tienes) ...
+    # 4.1 Métricas Rápidas
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Temperatura", f"{datos['main']['temp']} °C")
+    col2.metric("Sensación", f"{datos['main']['feels_like']} °C")
+    col3.metric("Humedad", f"{datos['main']['humidity']}%")
+    col4.metric("Viento", f"{datos['wind']['speed']} m/s")
 
-    st.subheader(f"Análisis Estadístico para {ciudad_fiel}")
+    st.divider()
+
+    # 4.2 Tabla de Análisis Estadístico
+    st.subheader(f"📊 Análisis Estadístico para {ciudad_fiel}")
     
-    # Creamos un diccionario con las métricas clave para análisis
     dict_stats = {
-        "Métrica": ["Temperatura Real", "Sensación Térmica", "Temp. Mínima", "Temp. Máxima", "velocidad del viento", "Presión Atm."],
+        "Métrica": [
+            "Temperatura Real", 
+            "Sensación Térmica", 
+            "Temp. Mínima", 
+            "Temp. Máxima", 
+            "Velocidad del viento", 
+            "Presión Atm."
+        ],
         "Valor": [
             f"{datos['main']['temp']} °C",
             f"{datos['main']['feels_like']} °C",
             f"{datos['main']['temp_min']} °C",
             f"{datos['main']['temp_max']} °C",
+            f"{datos['wind']['speed']} m/s",
             f"{datos['main']['pressure']} hPa"
-            f"{datos['wind']['speed']} k/h"
         ],
         "Estado": [
             "Normal" if datos['main']['temp'] < 30 else "Cálido",
             "N/A",
             "Mínimo hoy",
             "Máximo hoy",
+            "Brisa" if datos['wind']['speed'] < 5 else "Viento fuerte",
             "Estable" if 1010 <= datos['main']['pressure'] <= 1015 else "Variable"
         ]
     }
 
-    # Convertimos a DataFrame para mostrarlo como tabla profesional
+    # Conversión y visualización
     df_stats = pd.DataFrame(dict_stats)
-    
-    # Usamos st.dataframe para una tabla interactiva
     st.dataframe(df_stats, use_container_width=True, hide_index=True)
 
-    # Cálculo de diferencia térmica (un dato estadístico extra)
+    # 4.3 Mensaje Informativo
     dif_termica = abs(datos['main']['temp'] - datos['main']['feels_like'])
-    
-    st.info(f"💡 **Dato del sistema:** Hay una diferencia de {dif_termica:.2f} °C entre la temperatura real y la sensación térmica debido a la humedad del {datos['main']['humidity']}%.")
+    st.info(f"💡 **Dato del sistema:** Hay una diferencia de {dif_termica:.2f} °C en {ciudad_fiel} debido a la humedad del {datos['main']['humidity']}%.")
 
 else:
-    st.warning("⚠️ No se pudieron generar estadísticas.")
+    st.warning("⚠️ No se pudieron obtener datos. Revisa tu configuración.")
 # 5. PIE DE PÁGINA
 st.markdown("---")
 st.caption("Desarrollado con Streamlit y OpenWeather API.")
