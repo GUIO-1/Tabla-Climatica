@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 # 1. CONFIGURACIÓN DE PÁGINA (DEBE SER LO PRIMERO)
 st.set_page_config(
@@ -76,7 +77,36 @@ if datos:
     df_stats = pd.DataFrame(dict_stats)
     st.dataframe(df_stats, use_container_width=True, hide_index=True)
 
-    # 4.3 Gráfico Animado de Plotly
+    # 4.3 AQUÍ VA EL PUNTO 2 (GRÁFICO DE RADAR) ---
+    st.subheader("📊 Perfil Climático Detallado")
+    
+
+
+    # Definimos las categorías que queremos comparar
+    categories = ['Temp (°C)', 'Humedad (%)', 'Viento (m/s)', 'Nubes (%)', 'Presión (norm)']
+    
+    # Normalizamos la presión para que quepa en la escala (ej. 1013 hPa -> 50)
+    presion_norm = (datos['main']['pressure'] - 950) / (1050 - 950) * 100
+
+    fig_radar = go.Figure()
+    fig_radar.add_trace(go.Scatterpolar(
+          r=[datos['main']['temp'], datos['main']['humidity'], datos['wind']['speed'], datos['clouds']['all'], presion_norm],
+          theta=categories,
+          fill='toself',
+          name=ciudad_fiel,
+          marker=dict(color='#00FFAA') # Un color llamativo para el radar
+    ))
+
+    fig_radar.update_layout(
+      polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+      showlegend=False,
+      template="plotly_dark",
+      transition_duration=800 # Animación fluida al cambiar de ciudad
+    )
+    
+    st.plotly_chart(fig_radar, use_container_width=True)
+
+    # 4.4 Gráfico Animado de Plotly
     st.subheader("📈 Comparativa Visual de Temperaturas")
     df_animado = pd.DataFrame({
         'Métrica': ['Mínima', 'Actual', 'Máxima'],
@@ -96,7 +126,7 @@ if datos:
     fig.update_layout(transition_duration=800, yaxis_range=[0, 45], showlegend=False)
     st.plotly_chart(fig, use_container_width=True)
 
-    # 4.4 Mensaje Informativo
+    # 4.5 Mensaje Informativo
     dif_termica = abs(datos['main']['temp'] - datos['main']['feels_like'])
     st.info(f"💡 **Dato del sistema:** Hay una diferencia de {dif_termica:.2f} °C en {ciudad_fiel} debido a la humedad del {datos['main']['humidity']}%.")
 
