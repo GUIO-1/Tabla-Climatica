@@ -3,26 +3,38 @@ import requests
 import pandas as pd
 import plotly.express as px
 
-# ... (dentro del bloque if datos:)
 st.subheader("📈 Comparativa Visual de Temperaturas")
 
+# Datos estructurados para Plotly
 df_animado = pd.DataFrame({
     'Métrica': ['Mínima', 'Actual', 'Máxima'],
-    'Temperatura (°C)': [datos['main']['temp_min'], datos['main']['temp'], datos['main']['temp_max']]
+    'Temperatura (°C)': [
+        datos['main']['temp_min'], 
+        datos['main']['temp'], 
+        datos['main']['temp_max']
+    ]
 })
 
+# Creación del gráfico con animación de entrada
 fig = px.bar(
     df_animado, 
     x='Métrica', 
     y='Temperatura (°C)',
     color='Métrica',
     text_auto='.1f',
-    template="plotly_dark" # O "ggplot2" según tu estilo
+    template="plotly_dark",
+    color_discrete_sequence=px.colors.qualitative.Pastel # Colores más elegantes
 )
 
-# Esto activa la animación de entrada
-fig.update_layout(transition_duration=500)
+# Ajustes de animación y diseño
+fig.update_layout(
+    transition_duration=800,
+    yaxis_range=[0, 45], # Rango común para Nicaragua
+    showlegend=False
+)
+
 st.plotly_chart(fig, use_container_width=True)
+
 # 1. CONFIGURACIÓN DE PÁGINA
 # 'layout="wide"' aprovecha mejor el ancho del monitor para el dashboard
 st.set_page_config(
