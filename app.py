@@ -62,7 +62,7 @@ if datos:
     st.divider()
 
     # 4.5 Tabla de Análisis Estadístico
-   # Asegúrate de que cada lista tenga exactamente 6 elementos
+  
     dict_stats = {
         "Métrica": [
             "Temperatura Real", "Sensación Térmica", "Temp. Mínima", 
@@ -86,11 +86,11 @@ if datos:
         ]
     }
     
-    # Esto ya no fallará
+
     df_stats = pd.DataFrame(dict_stats)
     st.dataframe(df_stats, use_container_width=True, hide_index=True)
 
-    # 4.6 AQUÍ VA EL PUNTO 2 (GRÁFICO DE RADAR) ---
+    # 4.6 (GRÁFICO DE RADAR) ---
     st.subheader("📊 Perfil Climático Detallado")
     
 
