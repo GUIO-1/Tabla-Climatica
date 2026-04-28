@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import sqlite3
 
-# 1. CONFIGURACIÓN DE PÁGINA (DEBE SER LO PRIMERO)
+# CONFIGURACIÓN DE PÁGINA 
 st.set_page_config(
     page_title="Weather Pro NI", 
     page_icon="🌤️", 
@@ -22,7 +22,7 @@ def inicializar_db():
 
 inicializar_db()
 
-# 2. FUNCIÓN DE CONEXIÓN A LA API
+# FUNCIÓN DE CONEXIÓN A LA API
 @st.cache_data(ttl=600)
 def consultar_clima(ciudad):
     try:
@@ -46,9 +46,9 @@ def consultar_clima(ciudad):
             return datos
         return None
         
-    # --- REEMPLAZA TU BLOQUE EXCEPT (Línea 49 a 66) CON ESTO ---
+    
     except Exception as e:
-        # --- MODO OFFLINE: Si falla la API, buscamos en la DB local ---
+        # --- MODO OFFLINE ---
         try:
             conn = sqlite3.connect('clima_cache.db')
             c = conn.cursor()
@@ -59,8 +59,7 @@ def consultar_clima(ciudad):
             
             if res:
                 st.warning(f"⚠️ Sin conexión. Mostrando datos guardados de {ciudad}.")
-                # Llenamos con valores por defecto (0 o N/A) los datos que no guardamos 
-                # para que los gráficos y tablas no den error.
+              
                 return {
                     'main': {
                         'temp': res[0], 
@@ -81,7 +80,7 @@ def consultar_clima(ciudad):
         return None
     
     
-# 3. INTERFAZ Y FILTROS
+# INTERFAZ Y FILTROS
 st.title("🌤️ Tabla Meteorológica de Nicaragua")
 st.markdown("Consulta en tiempo real los datos climáticos de las principales ciudades.")
 
@@ -89,25 +88,25 @@ st.sidebar.header("📍 Parámetros de Consulta")
 ciudades = ["Rivas", "Managua", "Leon", "Granada", "Jinotega", "Matagalpa", "Chontales", "Boaco", "Bluefields"]
 ciudad_fiel = st.sidebar.selectbox("Selecciona una ciudad:", ciudades)
 
-# 4. PROCESAMIENTO Y VISUALIZACIÓN
+# PROCESAMIENTO Y VISUALIZACIÓN
 with st.spinner(f"Extrayendo datos climáticos de {ciudad_fiel}..."):
     datos = consultar_clima(ciudad_fiel)
 
 if datos:
    
-    # 4.1Obtener el código del icono de la API
+    # Obtener el código del icono de la API
     icono_codigo = datos['weather'][0]['icon']
     url_icono = f"http://openweathermap.org/img/wn/{icono_codigo}@4x.png"
 
-    #4.2Mostrar la imagen en la barra lateral
+    #Mostrar la imagen en la barra lateral
     st.sidebar.markdown("---") # Separador visual
     st.sidebar.image(url_icono, caption=f"Clima en {ciudad_fiel}", use_container_width=True)
     
-    #4.3 Mostrar descripción breve
+    #Mostrar descripción breve
     descripcion = datos['weather'][0]['description'].capitalize()
     st.sidebar.info(f"**Estado:** {descripcion}")
 
-    # 4.4 Métricas Rápidas
+    # Métricas Rápidas
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Temperatura", f"{datos['main']['temp']} °C")
     col2.metric("Sensación", f"{datos['main']['feels_like']} °C")
@@ -116,7 +115,7 @@ if datos:
 
     st.divider()
 
-    # 4.5 Tabla de Análisis Estadístico
+    #Tabla de Análisis Estadístico
   
     dict_stats = {
         "Métrica": [
@@ -145,12 +144,12 @@ if datos:
     df_stats = pd.DataFrame(dict_stats)
     st.dataframe(df_stats, use_container_width=True, hide_index=True)
 
-    # 4.6 (GRÁFICO DE RADAR) ---
+    #(GRÁFICO DE RADAR) ---
     st.subheader("📊 Perfil Climático Detallado")
     
 
 
-    # Definimos las categorías que queremos comparar
+    #Definimos las categorías que queremos comparar
     categories = ['Temp (°C)', 'Humedad (%)', 'Viento (m/s)', 'Nubes (%)', 'Presión (norm)']
     
     # Normalizamos la presión para que quepa en la escala (ej. 1013 hPa -> 50)
