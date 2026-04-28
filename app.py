@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import sqlite3
 
 # 1. CONFIGURACIÓN DE PÁGINA (DEBE SER LO PRIMERO)
 st.set_page_config(
@@ -10,6 +11,16 @@ st.set_page_config(
     page_icon="🌤️", 
     layout="wide"
 )
+
+def inicializar_db():
+    conn = sqlite3.connect('clima_cache.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS historial 
+                 (ciudad TEXT PRIMARY KEY, temp REAL, descripcion TEXT, humedad INTEGER)''')
+    conn.commit()
+    conn.close()
+
+inicializar_db()
 
 # 2. FUNCIÓN DE CONEXIÓN A LA API
 @st.cache_data(ttl=600)
@@ -19,10 +30,40 @@ def consultar_clima(ciudad):
         url = f"https://api.openweathermap.org/data/2.5/weather?q={ciudad},NI&appid={api_key}&units=metric&lang=es"
         
         respuesta = requests.get(url, timeout=5)
+        
         if respuesta.status_code == 200:
-            return respuesta.json()
+            datos = respuesta.json()
+            
+            # --- GUARDAR EN SQLITE (Caché Local) ---
+            conn = sqlite3.connect('clima_cache.db')
+            c = conn.cursor()
+            # Guardamos temp, descripción y humedad
+            c.execute("INSERT OR REPLACE INTO historial (ciudad, temp, descripcion, humedad) VALUES (?, ?, ?, ?)", 
+                      (ciudad, datos['main']['temp'], datos['weather'][0]['description'], datos['main']['humidity']))
+            conn.commit()
+            conn.close()
+            
+            return datos
         return None
+        
     except Exception as e:
+        # --- MODO OFFLINE: Si falla la API, buscamos en la DB local ---
+        try:
+            conn = sqlite3.connect('clima_cache.db')
+            c = conn.cursor()
+            c.execute("SELECT temp, descripcion, humedad FROM historial WHERE ciudad = ?", (ciudad,))
+            res = c.fetchone()
+            conn.close()
+            
+            if res:
+                # Retornamos el formato que espera el resto de tu código
+                return {
+                    'main': {'temp': res[0], 'humidity': res[2]},
+                    'weather': [{'description': res[1] + " (Offline)"}]
+                }
+        except:
+            pass
+            
         st.error(f"Error de conexión: {e}")
         return None
 
