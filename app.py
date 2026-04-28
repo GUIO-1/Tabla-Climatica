@@ -173,7 +173,7 @@ if datos:
     
     st.plotly_chart(fig_radar, use_container_width=True)
 
-    # 4.7 Gráfico Animado de Plotly
+    #Gráfico Animado de Plotly
     st.subheader("📈 Comparativa Visual de Temperaturas")
     df_animado = pd.DataFrame({
         'Métrica': ['Mínima', 'Actual', 'Máxima'],
@@ -193,13 +193,13 @@ if datos:
     fig.update_layout(transition_duration=800, yaxis_range=[0, 45], showlegend=False)
     st.plotly_chart(fig, use_container_width=True)
 
-    # 4.8 Mensaje Informativo
+    #Mensaje Informativo
     dif_termica = abs(datos['main']['temp'] - datos['main']['feels_like'])
     st.info(f"💡 **Dato del sistema:** Hay una diferencia de {dif_termica:.2f} °C en {ciudad_fiel} debido a la humedad del {datos['main']['humidity']}%.")
 
 else:
     st.warning("⚠️ No se pudieron obtener datos. Revisa tu configuración.")
 
-# 5. PIE DE PÁGINA
+#  PIE DE PÁGINA
 st.markdown("---")
 st.caption("Desarrollado con Streamlit y OpenWeather API.")
