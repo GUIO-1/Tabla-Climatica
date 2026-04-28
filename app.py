@@ -46,27 +46,41 @@ def consultar_clima(ciudad):
             return datos
         return None
         
+    # --- REEMPLAZA TU BLOQUE EXCEPT (Línea 49 a 66) CON ESTO ---
     except Exception as e:
         # --- MODO OFFLINE: Si falla la API, buscamos en la DB local ---
         try:
             conn = sqlite3.connect('clima_cache.db')
             c = conn.cursor()
+            # Asegúrate de que tu SELECT coincida con las columnas de tu tabla historial
             c.execute("SELECT temp, descripcion, humedad FROM historial WHERE ciudad = ?", (ciudad,))
             res = c.fetchone()
             conn.close()
             
             if res:
-                # Retornamos el formato que espera el resto de tu código
+                st.warning(f"⚠️ Sin conexión. Mostrando datos guardados de {ciudad}.")
+                # Llenamos con valores por defecto (0 o N/A) los datos que no guardamos 
+                # para que los gráficos y tablas no den error.
                 return {
-                    'main': {'temp': res[0], 'humidity': res[2]},
-                    'weather': [{'description': res[1] + " (Offline)"}]
+                    'main': {
+                        'temp': res[0], 
+                        'humidity': res[2],
+                        'feels_like': res[0], # Usamos la temp real como respaldo
+                        'temp_min': res[0],
+                        'temp_max': res[0],
+                        'pressure': 1013 # Presión estándar
+                    },
+                    'weather': [{'description': res[1] + " (Offline)", 'icon': '01d'}],
+                    'wind': {'speed': 0},
+                    'clouds': {'all': 0}
                 }
-        except:
-            pass
+        except Exception as db_e:
+            st.error(f"Error en base de datos local: {db_e}")
             
         st.error(f"Error de conexión: {e}")
         return None
-
+    
+    
 # 3. INTERFAZ Y FILTROS
 st.title("🌤️ Tabla Meteorológica de Nicaragua")
 st.markdown("Consulta en tiempo real los datos climáticos de las principales ciudades.")
